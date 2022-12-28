@@ -1,5 +1,3 @@
-import { HelloWorld } from './hello-world';
-
-export const sayHello = () => {
-  return HelloWorld;
-};
+export * from './lib';
+export * from './models';
+export * from './default';
