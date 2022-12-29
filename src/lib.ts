@@ -1,11 +1,11 @@
 import { defaultOptions } from './default';
 import { Options } from './models';
 
-export function retryCatch(
-  fn: () => Promise<any>,
+export function retryCatch<T>(
+  fn: () => Promise<T>,
   _options: Partial<Options>
-): Promise<any> {
-  const { retries, shouldRetryOnFulfill, shouldRetryOnReject, delay, backoff } =
+): Promise<T> {
+  const { retries, shouldRetryOnResolve, shouldRetryOnReject, delay, backoff } =
     {
       ...defaultOptions,
       ..._options
@@ -17,21 +17,19 @@ export function retryCatch(
         .then((result) => {
           if (
             retriesLeft > 1 &&
-            typeof shouldRetryOnFulfill === 'function' &&
-            shouldRetryOnFulfill(result)
+            typeof shouldRetryOnResolve === 'function' &&
+            shouldRetryOnResolve(result)
           ) {
             internalDelay = handleRetry({
               retriesLeft,
-              reject,
-              result,
               tryFn,
               internalDelay,
               backoff
             });
           } else if (
             retriesLeft === 1 &&
-            typeof shouldRetryOnFulfill === 'function' &&
-            shouldRetryOnFulfill(result)
+            typeof shouldRetryOnResolve === 'function' &&
+            shouldRetryOnResolve(result)
           ) {
             reject(result);
           } else {
@@ -42,14 +40,12 @@ export function retryCatch(
           if (
             retriesLeft === 1 ||
             (typeof shouldRetryOnReject === 'function' &&
-              shouldRetryOnReject(err))
+              !shouldRetryOnReject(err))
           ) {
             reject(err);
           } else {
             internalDelay = handleRetry({
               retriesLeft,
-              reject,
-              result: err,
               tryFn,
               internalDelay,
               backoff
@@ -63,24 +59,23 @@ export function retryCatch(
 
 function handleRetry({
   retriesLeft,
-  reject,
-  result,
   tryFn,
   internalDelay,
   backoff
 }: {
   retriesLeft: number;
-  reject: (reason?: any) => void;
-  result: any;
   tryFn: (retriesLeft: number) => void;
   internalDelay: number;
   backoff: number;
 }) {
-  if (retriesLeft === 1) {
-    reject(result);
-  } else {
-    setTimeout(() => tryFn(retriesLeft - 1), internalDelay);
-    internalDelay *= backoff;
-  }
+  setTimeout(() => tryFn(retriesLeft - 1), internalDelay);
+  internalDelay *= backoff;
   return internalDelay;
+}
+
+export function retryCatchable<T>(
+  fn: (...args) => Promise<T>,
+  _options: Partial<Options>
+): (...args) => Promise<T> {
+  return (...args) => retryCatch<T>(() => fn(...args), _options);
 }

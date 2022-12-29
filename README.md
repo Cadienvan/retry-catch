@@ -1,74 +1,142 @@
 # What is this?
 
-A simple scaffolding tool for creating a new project to be published to npm.  
-It provides a build command that will compile your code to a CommonJS Node 14.16 target, allowing named imports for CommonJS packages inside ESM files.  
-The package contains a simple "hello world" based on TypeScript, built on esbuild, tested through Jest and linted with ESLint and Prettier.  
-It also provides a Husky pre-commit hook to run some linting based on prettier and eslint and run tests, so you can simple `git add` and `git commit` without worrying about anything else.
+A simple higher-order function allowing execution to be repeated until a condition is satisfied or a limit is reached.
 
-## How To Install?
+# How do I install it?
 
 ```bash
-git clone git://github.com/Cadienvan/npm-package-ts-scaffolding.git package_name
-cd package_name
-npm install
-npx husky install
+npm install retry-catch
 ```
 
-## What do you mean by `allowing named imports from CommonJS`?
+# How can I use it?
 
-If you try to run `npm run build` you will be able to import the `sayHello` function from the `index.js` file, both via `require` and `import` syntax.
-
-### Importing via `require`
+## Basic usage
 
 ```js
-const { sayHello } = require('my-package');
+const {retryCatchable} = require('retry-catch');
+
+const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
+  return new Promise((resolve, reject) => {
+    if (Math.random() < chanceOfFailing) {
+      reject('KO');
+      return;
+    }
+    resolve('OK');
+  });
+};
+
+const retryFn = retryCatchable(fnWithCanceOfFailing, {
+  retries: 5,
+  delay: 1000,
+  backoff: 2,
+});
+
+retryFn(0.8)
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 ```
 
-### Importing via `import`
+The function will randomly fail 80% of the time. The retry function will retry the function 5 times, with a delay of 1 second between each retry. The delay will be multiplied by 2 after each retry.  
+The function will resolve with the result of the function if it succeeds, or reject with the error if it fails after all retries.
+## Advanced usage - shouldRetryOnReject
+
+You can also retry on reject, if you want to retry only if a specific error is returned.
 
 ```js
-import { sayHello } from 'my-package';
+const {retryCatchable} = require('retry-catch');
+
+const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
+  return new Promise((resolve, reject) => {
+    if (Math.random() < chanceOfFailing) {
+      reject(Math.random() < 0.8 ? 'KO' : 'REAL-KO');
+      return;
+    }
+    resolve('OK');
+  });
+};
+
+const retryFn = retryCatchable(fnWithCanceOfFailing, {
+  retries: 5,
+  delay: 1000,
+  backoff: 2,
+  shouldRetryOnReject: (error) => {
+    return error === 'KO';
+  },
+});
+
+retryFn(0.8)
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 ```
 
-# Why did you build it?
+The function will randomly fail 80% of the time. The retry function will retry the function 5 times, with a delay of 1 second between each retry. The delay will be multiplied by 2 after each retry.  
+The function will not retry if the error is not equal to 'KO'.
 
-I got tired of copying and pasting the same files over and over again.  
-This is a simple tool to create a new project with the basic files needed to publish to npm.
+## Advanced usage - shouldRetryOnResolve
 
-# How can I personalize it?
+You can also retry on resolve, if you want to retry only if a specific result is returned.
 
-You can change the `package.json` file to your liking, bringing your own package name and description.  
-Please, remember to give me a star if you like the project!
+```js
+const {retryCatchable} = require('retry-catch');
 
-# What's Inside?
+const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
+  return new Promise((resolve, reject) => {
+    if (Math.random() < chanceOfFailing) {
+      reject('KO');
+      return;
+    }
+    resolve(Math.random() < 0.8 ? 'OK' : 'REAL-OK');
+  });
+};
 
-- Typescript
-- Jest
-- Eslint
-- Prettier
-- Husky
-- Esbuild
-- Commitlint
+const retryFn = retryCatchable(fnWithCanceOfFailing, {
+  retries: 5,
+  delay: 1000,
+  backoff: 2,
+  shouldRetryOnResolve: (result) => {
+    return result === 'OK';
+  },
+});
 
-# How to push and release an update?
-
-```bash
-git add --all
-git commit -m "chore: update package"
-npm run release:patch
+retryFn(0.8)
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 ```
 
-Remember to follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
-You can substitute `patch` with `minor` or `major` to update the version accordingly.
+The function will randomly fail 80% of the time. The retry function will retry the function 5 times, with a delay of 1 second between each retry. The delay will be multiplied by 2 after each retry.  
+The function will not retry if the result is not equal to 'OK'.
 
-# How to run tests?
+# API
+
+The `retryCatchable` function takes 2 parameters:
+- The function to retry (the function must return a promise).
+- An object containing the list of options. You can pass the following properties and methods, all of them are optional:
+  - `retries`: The number of retries to attempt. Default: `3`.
+  - `delay`: The delay between every retry. Default: `1000`.
+  - `backoff`: The backoff multiplier. Every delay will be multiplied by this amount. Default: `1`.
+  - `shouldRetryOnResolve`: A function that will be called with the result of the function. If it returns `true`, the function will be retried. Default: `undefined`.
+  - `shouldRetryOnReject`: A function that will be called with the error of the function. If it returns `true`, the function will be retried. Default: `undefined`.
+
+# Tests
+
+You can run the tests by using the following command:
 
 ```bash
 npm test
 ```
 
-# Contributing
+# ToDo
 
-If you want to contribute to this project, please open an issue or a pull request.  
-I will be happy to review it and merge it if it's useful.  
-Please, remember to follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.  
+- [ ] Add event listening (onRetry, etc.)
