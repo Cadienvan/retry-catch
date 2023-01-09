@@ -15,7 +15,7 @@ npm install retry-catch
 ```js
 const {retryCatchable} = require('retry-catch');
 
-const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
+const fnWithChanceOfFailing = (chanceOfFailing = 0.8) => {
   return new Promise((resolve, reject) => {
     if (Math.random() < chanceOfFailing) {
       reject('KO');
@@ -25,7 +25,7 @@ const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
   });
 };
 
-const retryFn = retryCatchable(fnWithCanceOfFailing, {
+const retryFn = retryCatchable(fnWithChanceOfFailing, {
   retries: 5,
   delay: 1000,
   backoff: 2,
@@ -49,7 +49,7 @@ You can also retry on reject, if you want to retry only if a specific error is r
 ```js
 const {retryCatchable} = require('retry-catch');
 
-const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
+const fnWithChanceOfFailing = (chanceOfFailing = 0.8) => {
   return new Promise((resolve, reject) => {
     if (Math.random() < chanceOfFailing) {
       reject(Math.random() < 0.8 ? 'KO' : 'REAL-KO');
@@ -59,7 +59,7 @@ const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
   });
 };
 
-const retryFn = retryCatchable(fnWithCanceOfFailing, {
+const retryFn = retryCatchable(fnWithChanceOfFailing, {
   retries: 5,
   delay: 1000,
   backoff: 2,
@@ -87,7 +87,7 @@ You can also retry on resolve, if you want to retry only if a specific result is
 ```js
 const {retryCatchable} = require('retry-catch');
 
-const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
+const fnWithChanceOfFailing = (chanceOfFailing = 0.8) => {
   return new Promise((resolve, reject) => {
     if (Math.random() < chanceOfFailing) {
       reject('KO');
@@ -97,7 +97,7 @@ const fnWithCanceOfFailing = (chanceOfFailing = 0.8) => {
   });
 };
 
-const retryFn = retryCatchable(fnWithCanceOfFailing, {
+const retryFn = retryCatchable(fnWithChanceOfFailing, {
   retries: 5,
   delay: 1000,
   backoff: 2,
