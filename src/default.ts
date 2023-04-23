@@ -1,4 +1,4 @@
-import { Options } from "./models";
+import { Options } from './models';
 
 export const defaultOptions: Options = {
   retries: 3,
@@ -6,4 +6,4 @@ export const defaultOptions: Options = {
   backoff: 1,
   shouldRetryOnResolve: undefined,
   shouldRetryOnReject: undefined
-}
+};
