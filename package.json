@@ -2,7 +2,7 @@
   "name": "retry-catch",
   "description": "A simple higher-order function allowing execution to be repeated until a condition is satisfied or a limit is reached.",
   "private": false,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
