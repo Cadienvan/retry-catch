@@ -3,4 +3,3 @@ dist
 demo
 esbuild.js
 coverage
-jest.config.js

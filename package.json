@@ -22,9 +22,9 @@
     "build": "npm run check && rimraf dist && NODE_ENV=production node esbuild.js && npm run ts-types",
     "prettier": "prettier --write ./src",
     "lint": "eslint ./src --ext .ts",
-    "dev": "jest --watch",
-    "test": "jest --no-cache",
-    "coverage": "jest --coverage",
+    "dev": "tsx --watch --test src/**/*.test.ts",
+    "test": "tsx --test src/**/*.test.ts",
+    "coverage": "tsx --test --experimental-test-coverage src/**/*.test.ts",
     "release:common": "npm run build && git push --follow-tags origin main && npm publish --access public",
     "release:patch": "changelog -p && git add CHANGELOG.md && git commit -m 'docs: updated changelog' && npm version patch && npm run release:common",
     "release:minor": "changelog -m && git add CHANGELOG.md && git commit -m 'docs: updated changelog' && npm version minor && npm run release:common",
@@ -34,7 +34,6 @@
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
-    "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
@@ -42,11 +41,10 @@
     "eslint": "^8.56.0",
     "generate-changelog": "^1.8.0",
     "husky": "^8.0.3",
-    "jest": "^29.7.0",
     "lint-staged": "^15.2.0",
     "prettier": "^3.1.1",
     "rimraf": "^5.0.5",
-    "ts-jest": "^29.1.1",
+    "tsx": "^4.20.3",
     "typescript": "^5.3.3"
   },
   "lint-staged": {
