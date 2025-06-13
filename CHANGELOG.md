@@ -1,3 +1,9 @@
+## 2.0.0 (2025-06-13)
+
+##### Refactors
+
+*  update testing framework from Jest to Node's built-in test module ([16a7fcdf](https://github.com/Cadienvan/retry-catch/commit/16a7fcdfef042b1a6f4c7ba6fd9cc57a48d11a88))
+
 #### 1.0.2 (2023-12-27)
 
 ##### Chores
